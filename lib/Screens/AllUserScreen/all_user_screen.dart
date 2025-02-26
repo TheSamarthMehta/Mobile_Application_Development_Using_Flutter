@@ -145,7 +145,7 @@ class _AllUserScreenState extends State<AllUserScreen> {
               builder: (context) => RegisterUserScreen(),
             ),
           );
-            _fetchUsers();
+          _fetchUsers();
         },
         icon: Icon(Icons.add),
         label: Text('Add User'),
@@ -249,8 +249,8 @@ class UserCard extends StatelessWidget {
                       print("Edit user");
                     } else if (value == 'delete') {
                       // Show Cupertino Alert Dialog for confirmation
-                      _showDeleteConfirmationDialog(context);
-                      onBlock(); // Call the onBlock function passed from AllUserScreen
+                      _showDeleteConfirmationDialog(context, onBlock);
+                      // Call the onBlock function passed from AllUserScreen
                     }
                   },
                   itemBuilder: (BuildContext context) => [
@@ -300,7 +300,8 @@ class UserCard extends StatelessWidget {
     );
   }
 
-  void _showDeleteConfirmationDialog(BuildContext context) {
+  void _showDeleteConfirmationDialog(
+      BuildContext context, VoidCallback onDelete) {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
@@ -311,7 +312,7 @@ class UserCard extends StatelessWidget {
             CupertinoDialogAction(
               child: Text("Cancel"),
               onPressed: () {
-                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the confirmation dialog
               },
             ),
             CupertinoDialogAction(
@@ -319,17 +320,13 @@ class UserCard extends StatelessWidget {
               onPressed: () async {
                 Navigator.of(context).pop(); // Close confirmation dialog
 
-                // Show loading dialog
-                _showLoadingDialog(context);
+                _showLoadingDialog(context); // Show loading dialog
 
-                // Simulate a delay before deleting
-                await Future.delayed(Duration(seconds: 2));
+                await Future.delayed(Duration(seconds: 2)); // Simulate delay
 
-                // Perform the delete operation
-                onBlock(); // Delete user from DB and update UI
+                onDelete(); // Perform deletion
 
-                // Close loading dialog
-                Navigator.of(context).pop();
+                Navigator.of(context).pop(); // Close loading dialog
               },
             ),
           ],
@@ -343,6 +340,10 @@ class UserCard extends StatelessWidget {
     showCupertinoDialog(
       context: context,
       builder: (BuildContext context) {
+        Future.delayed(Duration(seconds: 1), () {
+          Navigator.of(context)
+              .pop(); // Close the loading dialog after 2 seconds
+        });
         return CupertinoAlertDialog(
           title: Text("Deleting..."),
           content: Padding(
